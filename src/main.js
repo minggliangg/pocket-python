@@ -40,6 +40,8 @@ const els = {
   problemSignature: document.getElementById('problem-signature'),
   problemExamples: document.getElementById('problem-examples'),
   editorHost: document.getElementById('editor'),
+  btnFontDown: document.getElementById('btn-font-down'),
+  btnFontUp: document.getElementById('btn-font-up'),
   btnTab: document.getElementById('btn-tab'),
   btnOutdent: document.getElementById('btn-outdent'),
   btnReset: document.getElementById('btn-reset'),
@@ -78,6 +80,38 @@ let saveTimer = null
 let solutionOpen = false
 let disposeProgressScene = null
 let progressSceneLoading = false
+
+const CODE_FONT_KEY = 'pocket-python-code-font-size'
+const CODE_FONT_MIN = 11
+const CODE_FONT_MAX = 22
+const CODE_FONT_DEFAULT = 14
+
+function loadCodeFontSize() {
+  try {
+    const raw = Number(localStorage.getItem(CODE_FONT_KEY))
+    if (Number.isFinite(raw) && raw >= CODE_FONT_MIN && raw <= CODE_FONT_MAX) {
+      return raw
+    }
+  } catch {
+    /* ignore */
+  }
+  return CODE_FONT_DEFAULT
+}
+
+function applyCodeFontSize(px) {
+  const size = Math.min(CODE_FONT_MAX, Math.max(CODE_FONT_MIN, px))
+  document.documentElement.style.setProperty('--code-font-size', `${size}px`)
+  try {
+    localStorage.setItem(CODE_FONT_KEY, String(size))
+  } catch {
+    /* ignore */
+  }
+  return size
+}
+
+function stepCodeFontSize(delta) {
+  return applyCodeFontSize(loadCodeFontSize() + delta)
+}
 
 function currentTheme() {
   return document.documentElement.dataset.theme === 'dark' ? 'dark' : 'light'
@@ -558,6 +592,15 @@ async function init() {
 
   els.backBtn.addEventListener('click', showList)
   els.btnRun.addEventListener('click', runCurrent)
+  applyCodeFontSize(loadCodeFontSize())
+  els.btnFontDown?.addEventListener('click', () => {
+    const next = stepCodeFontSize(-1)
+    showToast(`Code font ${next}px`)
+  })
+  els.btnFontUp?.addEventListener('click', () => {
+    const next = stepCodeFontSize(1)
+    showToast(`Code font ${next}px`)
+  })
   els.btnTab.addEventListener('click', () => editor?.indent())
   els.btnOutdent.addEventListener('click', () => editor?.outdent())
   els.btnReset.addEventListener('click', async () => {

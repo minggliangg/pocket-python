@@ -4,7 +4,11 @@
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/icons/icon-192.svg" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <!-- maximum-scale/user-scalable keep iOS Safari from auto-zooming on focus so the editor can stay <16px -->
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover"
+    />
     <meta name="theme-color" content="#0F766E" />
     <meta name="apple-mobile-web-app-capable" content="yes" />
     <meta name="apple-mobile-web-app-status-bar-style" content="default" />
@@ -95,6 +99,10 @@
         </section>
 
         <div class="toolbar" role="toolbar" aria-label="Editor actions">
+          <div class="font-size-group" role="group" aria-label="Code font size">
+            <button type="button" class="tool-btn font-btn" id="btn-font-down" title="Smaller code font" aria-label="Decrease code font size">A−</button>
+            <button type="button" class="tool-btn font-btn" id="btn-font-up" title="Larger code font" aria-label="Increase code font size">A+</button>
+          </div>
           <button type="button" class="tool-btn" id="btn-tab" title="Insert indent">Tab</button>
           <button type="button" class="tool-btn" id="btn-outdent" title="Outdent">⇤</button>
           <button type="button" class="tool-btn" id="btn-reset" title="Reset starter code">Reset</button>
