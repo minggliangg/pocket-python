@@ -201,92 +201,119 @@ export function mountProgressScene(container, { solvedCount, totalCount } = {}) 
   floor.position.y = -1.55
   root.add(floor)
 
-  // —— Tiny Unit-01 flyby (occasional) ——
-  const eva = new THREE.Group()
-  {
+  // —— Tiny Eva units (00, 01, 02) — slower patrol orbits ——
+  function buildEva(bodyColor, bodyEmissive, trimColor, finColor) {
+    const g = new THREE.Group()
     const bodyMat = new THREE.MeshStandardMaterial({
-      color: 0x4c1d95,
-      emissive: 0x2e1065,
-      emissiveIntensity: 0.4,
+      color: bodyColor,
+      emissive: bodyEmissive,
+      emissiveIntensity: 0.35,
       metalness: 0.5,
       roughness: 0.35,
       flatShading: true,
+      transparent: true,
+      opacity: 1,
     })
     const trimMat = new THREE.MeshStandardMaterial({
-      color: 0xa3ff12,
-      emissive: 0xa3ff12,
-      emissiveIntensity: 0.7,
+      color: trimColor,
+      emissive: trimColor,
+      emissiveIntensity: 0.65,
       metalness: 0.2,
       roughness: 0.4,
       flatShading: true,
+      transparent: true,
+      opacity: 1,
     })
-    const redMat = new THREE.MeshStandardMaterial({
-      color: 0xff1a1a,
-      emissive: 0xff1a1a,
-      emissiveIntensity: 0.5,
+    const finMat = new THREE.MeshStandardMaterial({
+      color: finColor,
+      emissive: finColor,
+      emissiveIntensity: 0.4,
       flatShading: true,
+      transparent: true,
+      opacity: 1,
     })
 
-    // Torso
     const torso = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.28, 0.12), bodyMat)
-    eva.add(torso)
-
-    // Head (slightly long Eva-ish)
+    g.add(torso)
     const head = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.12, 0.12), bodyMat)
     head.position.y = 0.22
-    eva.add(head)
+    g.add(head)
     const crest = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.08, 0.02), trimMat)
     crest.position.set(0, 0.28, 0.05)
-    eva.add(crest)
+    g.add(crest)
     const eye = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.02, 0.02), trimMat)
     eye.position.set(0, 0.22, 0.06)
-    eva.add(eye)
-
-    // Chest core light
+    g.add(eye)
     const chest = new THREE.Mesh(new THREE.OctahedronGeometry(0.035, 0), trimMat)
     chest.position.set(0, 0.06, 0.07)
-    eva.add(chest)
-
-    // Arms / shoulder pylons
+    g.add(chest)
     const shoulderL = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.06, 0.1), bodyMat)
     shoulderL.position.set(-0.14, 0.12, 0)
-    eva.add(shoulderL)
+    g.add(shoulderL)
     const shoulderR = shoulderL.clone()
     shoulderR.position.x = 0.14
-    eva.add(shoulderR)
+    g.add(shoulderR)
     const armL = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.2, 0.05), bodyMat)
     armL.position.set(-0.14, -0.02, 0)
     armL.rotation.z = 0.25
-    eva.add(armL)
+    g.add(armL)
     const armR = armL.clone()
     armR.position.x = 0.14
     armR.rotation.z = -0.25
-    eva.add(armR)
-
-    // Legs tucked (flight pose)
+    g.add(armR)
     const legL = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.22, 0.06), bodyMat)
     legL.position.set(-0.05, -0.24, -0.02)
     legL.rotation.x = -0.5
-    eva.add(legL)
+    g.add(legL)
     const legR = legL.clone()
     legR.position.x = 0.05
-    eva.add(legR)
-
-    // Tiny wing / thruster fins
-    const fin = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.18, 0.12), redMat)
+    g.add(legR)
+    const fin = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.18, 0.12), finMat)
     fin.position.set(0, 0.02, -0.1)
     fin.rotation.x = 0.4
-    eva.add(fin)
+    g.add(fin)
 
-    eva.scale.setScalar(0.55)
-    eva.visible = false
-    eva.userData = { bodyMat, trimMat, redMat }
-    root.add(eva)
+    g.scale.setScalar(0.5)
+    g.visible = false
+    g.userData = { bodyMat, trimMat, finMat }
+    root.add(g)
+    return g
   }
 
-  let evaPhase = -2.5 // seconds until first appearance
-  let evaActive = false
-  let evaT = 0
+  // Unit-00 (Rei) white/blue · Unit-01 (Shinji) purple/green · Unit-02 (Asuka) red/green
+  const evas = [
+    {
+      id: '00',
+      mesh: buildEva(0xe7e5e4, 0x94a3b8, 0x38bdf8, 0x64748b),
+      phase: 1.8,
+      active: false,
+      t: 0,
+      radius: 2.2,
+      yBase: 0.35,
+      loops: 0.9,
+    },
+    {
+      id: '01',
+      mesh: buildEva(0x4c1d95, 0x2e1065, 0xa3ff12, 0x7c3aed),
+      phase: 6.5,
+      active: false,
+      t: 0,
+      radius: 2.45,
+      yBase: 0.15,
+      loops: 1.05,
+    },
+    {
+      id: '02',
+      mesh: buildEva(0xb91c1c, 0x7f1d1d, 0x86efac, 0xf97316),
+      phase: 11,
+      active: false,
+      t: 0,
+      radius: 2.05,
+      yBase: 0.5,
+      loops: 0.85,
+    },
+  ]
+  const EVA_LIFE = 11 // seconds per pass — much slower than before
 
   // —— Interaction: drag orbit + pinch zoom ——
   const pointers = new Map()
@@ -404,53 +431,45 @@ export function mountProgressScene(container, { solvedCount, totalCount } = {}) 
     atField.rotation.y = -t * 0.12
     nodes.rotation.y = t * 0.08
 
-    // Eva flyby: appear every ~9–14s, orbit a few seconds, then leave
-    if (!evaActive) {
-      evaPhase -= dt
-      if (evaPhase <= 0) {
-        evaActive = true
-        evaT = 0
-        eva.visible = true
+    // Eva patrols: 00 / 01 / 02, staggered and slow
+    for (const e of evas) {
+      if (!e.active) {
+        e.phase -= dt
+        if (e.phase <= 0) {
+          e.active = true
+          e.t = 0
+          e.mesh.visible = true
+        }
+        continue
       }
-    } else {
-      evaT += dt
-      const LIFE = 6.5
-      const u = evaT / LIFE
+      e.t += dt
+      const u = e.t / EVA_LIFE
       if (u >= 1) {
-        evaActive = false
-        eva.visible = false
-        evaPhase = 7 + Math.random() * 6
-      } else {
-        // Figure-8 around the core on a tilted plane
-        const angle = u * Math.PI * 2 * 1.35
-        const R = 2.35
-        const x = Math.sin(angle) * R
-        const z = Math.sin(angle * 2) * (R * 0.45)
-        const y = Math.sin(angle * 0.5) * 0.55 + 0.25
-        eva.position.set(x, y, z)
-
-        // Face along velocity (sample next point)
-        const a2 = angle + 0.08
-        const x2 = Math.sin(a2) * R
-        const z2 = Math.sin(a2 * 2) * (R * 0.45)
-        const y2 = Math.sin(a2 * 0.5) * 0.55 + 0.25
-        eva.lookAt(x2, y2, z2)
-
-        // Fade in/out at ends
-        const fade = u < 0.12 ? u / 0.12 : u > 0.88 ? (1 - u) / 0.12 : 1
-        const mats = eva.userData
-        mats.bodyMat.opacity = 1
-        mats.bodyMat.transparent = fade < 1
-        mats.bodyMat.opacity = fade
-        mats.trimMat.transparent = fade < 1
-        mats.trimMat.opacity = fade
-        mats.redMat.transparent = fade < 1
-        mats.redMat.opacity = fade
-
-        // Subtle bank / bob
-        eva.rotation.z = Math.sin(t * 6) * 0.15
-        eva.position.y += Math.sin(t * 9) * 0.03
+        e.active = false
+        e.mesh.visible = false
+        e.phase = 10 + Math.random() * 8
+        continue
       }
+      const angle = u * Math.PI * 2 * e.loops
+      const R = e.radius
+      const x = Math.sin(angle) * R
+      const z = Math.sin(angle * 2) * (R * 0.4)
+      const y = Math.sin(angle * 0.5) * 0.45 + e.yBase
+      e.mesh.position.set(x, y, z)
+
+      const a2 = angle + 0.06
+      const x2 = Math.sin(a2) * R
+      const z2 = Math.sin(a2 * 2) * (R * 0.4)
+      const y2 = Math.sin(a2 * 0.5) * 0.45 + e.yBase
+      e.mesh.lookAt(x2, y2, z2)
+
+      const fade = u < 0.1 ? u / 0.1 : u > 0.9 ? (1 - u) / 0.1 : 1
+      const mats = e.mesh.userData
+      mats.bodyMat.opacity = fade
+      mats.trimMat.opacity = fade
+      mats.finMat.opacity = fade
+      e.mesh.rotation.z = Math.sin(t * 3) * 0.08
+      e.mesh.position.y += Math.sin(t * 4.5) * 0.02
     }
 
     renderer.render(scene, camera)
@@ -485,10 +504,12 @@ export function mountProgressScene(container, { solvedCount, totalCount } = {}) 
     nodeOff.dispose()
     floorGeo.dispose()
     floorMat.dispose()
-    eva.traverse((obj) => {
-      if (obj.geometry) obj.geometry.dispose()
-      if (obj.material) obj.material.dispose()
-    })
+    for (const e of evas) {
+      e.mesh.traverse((obj) => {
+        if (obj.geometry) obj.geometry.dispose()
+        if (obj.material) obj.material.dispose()
+      })
+    }
     renderer.dispose()
     if (renderer.domElement.parentNode === container) {
       container.removeChild(renderer.domElement)
