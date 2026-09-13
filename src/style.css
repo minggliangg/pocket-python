@@ -85,6 +85,14 @@ button {
   -webkit-tap-highlight-color: transparent;
 }
 
+/* iOS: never zoom the layout when a field is focused */
+input,
+textarea,
+select {
+  font-size: 16px;
+  -webkit-text-size-adjust: 100%;
+}
+
 button:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
@@ -383,8 +391,10 @@ button:focus-visible {
   border-radius: 10px;
   background: var(--panel);
   font: inherit;
-  font-size: 0.95rem;
+  /* ≥16px so iOS Safari does not zoom the page on focus */
+  font-size: 16px;
   color: var(--ink);
+  -webkit-text-size-adjust: 100%;
 }
 
 .search-input::placeholder {
@@ -404,7 +414,7 @@ button:focus-visible {
   border-radius: 10px;
   background: var(--panel);
   font: inherit;
-  font-size: 0.88rem;
+  font-size: 16px;
   color: var(--ink);
 }
 
@@ -444,6 +454,88 @@ button:focus-visible {
   min-height: 28px;
   padding: 0 10px;
   font-size: 0.72rem;
+  margin-left: auto;
+}
+
+.transfer-sheet {
+  max-height: min(90dvh, 520px);
+}
+
+.transfer-sheet .progress-sheet-head {
+  border-bottom-color: var(--border);
+}
+
+.transfer-sheet .progress-sheet-head h2 {
+  color: var(--ink);
+  letter-spacing: -0.02em;
+  text-transform: none;
+  font-size: 1rem;
+}
+
+.transfer-sheet .icon-btn {
+  color: var(--ink);
+}
+
+.transfer-sheet .icon-btn:hover {
+  background: var(--chip);
+}
+
+.transfer-help {
+  margin: 0;
+  padding: 10px 16px 0;
+  font-size: 0.82rem;
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.transfer-code {
+  margin: 12px 16px 0;
+  width: calc(100% - 32px);
+  min-height: 96px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--paper);
+  color: var(--ink);
+  font-family: 'SF Mono', 'Cascadia Code', Consolas, ui-monospace, monospace;
+  /* ≥16px prevents iOS focus zoom */
+  font-size: 16px;
+  line-height: 1.45;
+  resize: vertical;
+  word-break: break-all;
+  -webkit-text-size-adjust: 100%;
+}
+
+.transfer-code:focus {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+.transfer-check {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px 0;
+  font-size: 0.85rem;
+  color: var(--ink);
+}
+
+.transfer-check input {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--accent);
+}
+
+.transfer-actions {
+  display: flex;
+  gap: 8px;
+  padding: 14px 16px 16px;
+  flex-wrap: wrap;
+}
+
+.run-btn.compact {
+  min-width: 120px;
+  min-height: 40px;
   margin-left: auto;
 }
 

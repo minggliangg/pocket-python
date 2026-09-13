@@ -64,6 +64,11 @@ Solved marks, drafts, and theme live in **IndexedDB in that browser on that
 device**. There is no account and no cloud sync: phone and desktop each keep
 their own progress. “Clear completed” / “Clear drafts” only wipe local state.
 
+To move progress between devices: **Export code** → copy the `PP1.…` token →
+**Import code** on the other device. The token is offline-only (nothing is
+uploaded). Leave “Include saved drafts” checked to carry your typed solutions
+too; uncheck for a short marks-only token. Import offers merge or replace.
+
 ## Refresh problems / import more
 
 - Edit `public/problems.json` (core) or `public/packs/growth.json`

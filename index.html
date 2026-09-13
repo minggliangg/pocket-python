@@ -67,7 +67,9 @@
           </select>
         </div>
         <div class="list-actions">
-          <button type="button" id="btn-clear-progress" class="text-btn">Clear completed</button>
+          <button type="button" id="btn-export" class="text-btn">Export code</button>
+          <button type="button" id="btn-import" class="text-btn">Import code</button>
+          <button type="button" id="btn-clear-progress" class="text-btn subtle">Clear completed</button>
           <button type="button" id="btn-clear-drafts" class="text-btn subtle">Clear drafts</button>
         </div>
         <ol id="problem-list" class="problem-list"></ol>
@@ -156,6 +158,31 @@
       </div>
 
       <div id="toast" class="toast hidden" role="status"></div>
+
+      <div id="transfer-modal" class="progress-modal hidden" role="dialog" aria-modal="true" aria-labelledby="transfer-title">
+        <div class="progress-sheet transfer-sheet">
+          <div class="progress-sheet-head">
+            <h2 id="transfer-title">Transfer progress</h2>
+            <button type="button" id="transfer-close" class="icon-btn" aria-label="Close transfer">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+            </button>
+          </div>
+          <p id="transfer-help" class="transfer-help">
+            Copy this code on one device, paste it on another. Codes are offline — nothing is uploaded.
+          </p>
+          <textarea id="transfer-code" class="transfer-code" spellcheck="false" autocomplete="off" rows="5" placeholder="PP1.…"></textarea>
+          <label class="transfer-check">
+            <input type="checkbox" id="transfer-drafts" checked />
+            Include saved drafts (code you’ve typed)
+          </label>
+          <div class="transfer-actions">
+            <button type="button" id="btn-copy-code" class="text-btn">Copy code</button>
+            <button type="button" id="btn-apply-code" class="run-btn compact">Apply import</button>
+          </div>
+        </div>
+      </div>
     </div>
     <script type="module" src="/src/main.js"></script>
   </body>

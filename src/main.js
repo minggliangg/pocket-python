@@ -9,6 +9,8 @@ import {
   markSolved,
   unmarkSolved,
   clearProgress,
+  exportTransferCode,
+  importTransferCode,
 } from './db.js'
 
 const els = {
@@ -22,6 +24,14 @@ const els = {
   packFilter: document.getElementById('pack-filter'),
   btnClearProgress: document.getElementById('btn-clear-progress'),
   btnClearDrafts: document.getElementById('btn-clear-drafts'),
+  btnExport: document.getElementById('btn-export'),
+  btnImport: document.getElementById('btn-import'),
+  transferModal: document.getElementById('transfer-modal'),
+  transferClose: document.getElementById('transfer-close'),
+  transferCode: document.getElementById('transfer-code'),
+  transferDrafts: document.getElementById('transfer-drafts'),
+  btnCopyCode: document.getElementById('btn-copy-code'),
+  btnApplyCode: document.getElementById('btn-apply-code'),
   problemIndex: document.getElementById('problem-index'),
   problemDifficulty: document.getElementById('problem-difficulty'),
   problemSource: document.getElementById('problem-source'),
@@ -264,6 +274,34 @@ function closeProgressModal() {
     disposeProgressScene = null
   }
   if (els.progressCanvas) els.progressCanvas.innerHTML = ''
+}
+
+function openTransferModal(mode = 'export') {
+  if (!els.transferModal || !els.transferCode) return
+  els.transferModal.classList.remove('hidden')
+  if (mode === 'export') {
+    els.transferCode.value = ''
+    els.transferCode.placeholder = 'Generating code…'
+    els.transferCode.readOnly = true
+    exportTransferCode({ includeDrafts: els.transferDrafts?.checked !== false })
+      .then((code) => {
+        els.transferCode.value = code
+        els.transferCode.placeholder = 'PP1.…'
+      })
+      .catch((err) => {
+        els.transferCode.placeholder = 'Failed to export'
+        showToast(err?.message || 'Export failed')
+      })
+  } else {
+    els.transferCode.value = ''
+    els.transferCode.placeholder = 'Paste a PP1.… code from the other device'
+    els.transferCode.readOnly = false
+  }
+  setTimeout(() => els.transferCode.focus(), 50)
+}
+
+function closeTransferModal() {
+  els.transferModal?.classList.add('hidden')
 }
 
 async function openProgressModal() {
@@ -573,17 +611,79 @@ async function init() {
     showToast('Drafts cleared')
   })
 
+  els.btnExport?.addEventListener('click', () => openTransferModal('export'))
+  els.btnImport?.addEventListener('click', () => openTransferModal('import'))
+  els.transferClose?.addEventListener('click', closeTransferModal)
+  els.transferModal?.addEventListener('click', (event) => {
+    if (event.target === els.transferModal) closeTransferModal()
+  })
+  els.transferDrafts?.addEventListener('change', () => {
+    // Regenerate export payload when the drafts toggle flips while exporting
+    if (
+      els.transferModal &&
+      !els.transferModal.classList.contains('hidden') &&
+      els.transferCode?.readOnly
+    ) {
+      openTransferModal('export')
+    }
+  })
+  els.btnCopyCode?.addEventListener('click', async () => {
+    const code = els.transferCode?.value?.trim()
+    if (!code) {
+      showToast('Nothing to copy yet')
+      return
+    }
+    try {
+      await navigator.clipboard.writeText(code)
+      showToast('Code copied')
+    } catch {
+      els.transferCode.focus()
+      els.transferCode.select()
+      showToast('Select and copy manually')
+    }
+  })
+  els.btnApplyCode?.addEventListener('click', async () => {
+    const code = els.transferCode?.value?.trim()
+    if (!code) {
+      showToast('Paste a transfer code first')
+      return
+    }
+    const merge = window.confirm(
+      'Merge with this device’s progress?\n\nOK = merge (keep both)\nCancel = replace local progress with the code'
+    )
+    try {
+      const result = await importTransferCode(code, {
+        mode: merge ? 'merge' : 'replace',
+      })
+      solved = result.solved
+      updateProgress()
+      renderList()
+      closeTransferModal()
+      showToast(
+        `Imported ${solved.length} solved` +
+          (result.draftCount ? ` · ${result.draftCount} drafts` : '')
+      )
+    } catch (err) {
+      showToast(err?.message || 'Import failed')
+    }
+  })
+  document.addEventListener('keydown', (event) => {
+    if (event.key !== 'Escape') return
+    if (els.transferModal && !els.transferModal.classList.contains('hidden')) {
+      closeTransferModal()
+      return
+    }
+    if (els.progressModal && !els.progressModal.classList.contains('hidden')) {
+      closeProgressModal()
+    }
+  })
+
   els.progressFab?.addEventListener('click', () => {
     openProgressModal()
   })
   els.progressClose?.addEventListener('click', closeProgressModal)
   els.progressModal?.addEventListener('click', (event) => {
     if (event.target === els.progressModal) closeProgressModal()
-  })
-  document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape' && els.progressModal && !els.progressModal.classList.contains('hidden')) {
-      closeProgressModal()
-    }
   })
 }
 
