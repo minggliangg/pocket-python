@@ -47,21 +47,22 @@ npm run preview -- --host
 Note the LAN URL (e.g. `http://192.168.1.20:4173`) and open it on your phone.
 In Safari: Share → Add to Home Screen.
 
-### Option B — free static host (best for offline + install)
+### Option B — GitHub Pages (live URL)
 
-Deploy the `dist/` folder to any static host:
+The repo is public. On every push to `main`, GitHub Actions builds with
+`BASE_PATH=/pocket-python/` and deploys `dist/` to Pages.
 
-| Host | How |
-|------|-----|
-| Cloudflare Pages | Drag-and-drop `dist/` in the dashboard, or `npx wrangler pages deploy dist` |
-| Netlify | Drag-and-drop `dist/` at app.netlify.com/drop |
-| GitHub Pages | Push `dist/` to a `gh-pages` branch |
-| Vercel | `npx vercel deploy dist --prod` |
+**https://minggliangg.github.io/pocket-python/**
 
-HTTPS is required for the service worker and “Add to Home Screen”.
+(First run: Settings → Pages → Source = **GitHub Actions**, or the workflow enables it.)
 
-After the first online load, the service worker caches the app, packs, and
-Pyodide runtime for offline practice.
+Other free hosts still work — deploy `dist/` with `BASE_PATH=/`.
+
+### Progress storage
+
+Solved marks, drafts, and theme live in **IndexedDB in that browser on that
+device**. There is no account and no cloud sync: phone and desktop each keep
+their own progress. “Clear completed” / “Clear drafts” only wipe local state.
 
 ## Refresh problems / import more
 

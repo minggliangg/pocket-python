@@ -52,9 +52,10 @@ const els = {
   toast: document.getElementById('toast'),
 }
 
+const BASE = import.meta.env.BASE_URL || '/'
 const PACKS = [
-  { id: 'core', url: '/problems.json', label: 'Arrays & hash-maps' },
-  { id: 'growth', url: '/packs/growth.json', label: 'Growth Track' },
+  { id: 'core', url: `${BASE}problems.json`, label: 'Arrays & hash-maps' },
+  { id: 'growth', url: `${BASE}packs/growth.json`, label: 'Growth Track' },
 ]
 
 let problems = []

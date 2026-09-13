@@ -1,7 +1,11 @@
 import { defineConfig } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
+// GitHub project Pages serve from https://<user>.github.io/<repo>/
+const base = process.env.BASE_PATH || '/'
+
 export default defineConfig({
+  base,
   plugins: [
     VitePWA({
       registerType: 'autoUpdate',
@@ -14,8 +18,8 @@ export default defineConfig({
         background_color: '#FAFAF9',
         display: 'standalone',
         orientation: 'portrait',
-        start_url: '/',
-        scope: '/',
+        start_url: base,
+        scope: base,
         icons: [
           {
             src: 'icons/icon-192.svg',
