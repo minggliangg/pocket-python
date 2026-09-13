@@ -1,0 +1,645 @@
+{
+  "id": "growth",
+  "name": "Growth Track",
+  "description": "Progressive interview-style problems: two pointers, sliding window, stacks, binary search, intervals, graphs, and DP. Harder than warm-up drills — built to stretch you.",
+  "attribution": "Authored for Pocket Python practice.",
+  "problems": [
+    {
+      "id": "growth-merge-sorted",
+      "title": "Merge Two Sorted Lists",
+      "difficulty": "Easy",
+      "track": "Two Pointers",
+      "source": "Growth",
+      "fnName": "merge_sorted",
+      "prompt": "Merge two sorted lists into one sorted list in O(n+m) time without using sort(). Return a new list.",
+      "signature": "def merge_sorted(a, b):",
+      "starter": "def merge_sorted(a, b):\n    pass\n",
+      "solution": "def merge_sorted(a, b):\n    i = j = 0\n    out = []\n    while i < len(a) and j < len(b):\n        if a[i] <= b[j]:\n            out.append(a[i])\n            i += 1\n        else:\n            out.append(b[j])\n            j += 1\n    out.extend(a[i:])\n    out.extend(b[j:])\n    return out\n",
+      "examples": [
+        { "input": "[1, 4, 7], [2, 3, 8]", "output": "[1, 2, 3, 4, 7, 8]" }
+      ],
+      "tests": [
+        { "label": "Interleaved", "args": [[1, 4, 7], [2, 3, 8]], "expected": [1, 2, 3, 4, 7, 8] },
+        { "label": "Empty one side", "args": [[], [1, 2]], "expected": [1, 2] },
+        { "label": "All left first", "args": [[1, 2, 3], [4, 5]], "expected": [1, 2, 3, 4, 5] },
+        { "label": "Duplicates", "args": [[1, 1, 2], [1, 3]], "expected": [1, 1, 1, 2, 3] }
+      ]
+    },
+    {
+      "id": "growth-three-sum-closest",
+      "title": "3Sum Closest",
+      "difficulty": "Medium",
+      "track": "Two Pointers",
+      "source": "Growth",
+      "fnName": "three_sum_closest",
+      "prompt": "Given a list of integers nums and an integer target, find three integers whose sum is closest to target. Return that sum. You may assume each input has exactly one solution.",
+      "signature": "def three_sum_closest(nums, target):",
+      "starter": "def three_sum_closest(nums, target):\n    pass\n",
+      "solution": "def three_sum_closest(nums, target):\n    nums = sorted(nums)\n    best = nums[0] + nums[1] + nums[2]\n    n = len(nums)\n    for i in range(n - 2):\n        lo, hi = i + 1, n - 1\n        while lo < hi:\n            s = nums[i] + nums[lo] + nums[hi]\n            if abs(s - target) < abs(best - target):\n                best = s\n            if s < target:\n                lo += 1\n            elif s > target:\n                hi -= 1\n            else:\n                return s\n    return best\n",
+      "examples": [
+        { "input": "[-1, 2, 1, -4], 1", "output": "2" }
+      ],
+      "tests": [
+        { "label": "Classic", "args": [[-1, 2, 1, -4], 1], "expected": 2 },
+        { "label": "Exact", "args": [[0, 0, 0], 1], "expected": 0 },
+        { "label": "Larger", "args": [[1, 1, 1, 0], -100], "expected": 2 },
+        { "label": "Four numbers", "args": [[4, 0, 5, -5, 3, 3, 0, -4, -5], -2], "expected": -2 }
+      ]
+    },
+    {
+      "id": "growth-container-water",
+      "title": "Container With Most Water",
+      "difficulty": "Medium",
+      "track": "Two Pointers",
+      "source": "Growth",
+      "fnName": "max_area",
+      "prompt": "Given a list of non-negative integers height where height[i] is the height of a vertical line at index i, find two lines that form a container holding the most water. Return the maximum area.",
+      "signature": "def max_area(height):",
+      "starter": "def max_area(height):\n    pass\n",
+      "solution": "def max_area(height):\n    lo, hi = 0, len(height) - 1\n    best = 0\n    while lo < hi:\n        area = min(height[lo], height[hi]) * (hi - lo)\n        if area > best:\n            best = area\n        if height[lo] < height[hi]:\n            lo += 1\n        else:\n            hi -= 1\n    return best\n",
+      "examples": [
+        { "input": "[1, 8, 6, 2, 5, 4, 8, 3, 7]", "output": "49" }
+      ],
+      "tests": [
+        { "label": "Classic", "args": [[1, 8, 6, 2, 5, 4, 8, 3, 7]], "expected": 49 },
+        { "label": "Two lines", "args": [[1, 1]], "expected": 1 },
+        { "label": "Flat", "args": [[4, 4, 4, 4]], "expected": 12 },
+        { "label": "Peak at end", "args": [[1, 2, 1]], "expected": 2 }
+      ]
+    },
+    {
+      "id": "growth-trapping-rain",
+      "title": "Trapping Rain Water",
+      "difficulty": "Hard",
+      "track": "Two Pointers",
+      "source": "Growth",
+      "fnName": "trap",
+      "prompt": "Given n non-negative integers representing an elevation map where the width of each bar is 1, compute how much water it can trap after raining.",
+      "signature": "def trap(height):",
+      "starter": "def trap(height):\n    pass\n",
+      "solution": "def trap(height):\n    if not height:\n        return 0\n    lo, hi = 0, len(height) - 1\n    left_max = height[lo]\n    right_max = height[hi]\n    water = 0\n    while lo < hi:\n        if left_max < right_max:\n            lo += 1\n            left_max = max(left_max, height[lo])\n            water += left_max - height[lo]\n        else:\n            hi -= 1\n            right_max = max(right_max, height[hi])\n            water += right_max - height[hi]\n    return water\n",
+      "examples": [
+        { "input": "[0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1]", "output": "6" }
+      ],
+      "tests": [
+        { "label": "Classic", "args": [[0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1]], "expected": 6 },
+        { "label": "Valley", "args": [[4, 2, 0, 3, 2, 5]], "expected": 9 },
+        { "label": "No trap", "args": [[1, 2, 3, 4]], "expected": 0 },
+        { "label": "Empty-ish", "args": [[0]], "expected": 0 }
+      ]
+    },
+    {
+      "id": "growth-longest-substr",
+      "title": "Longest Substring Without Repeating Characters",
+      "difficulty": "Medium",
+      "track": "Sliding Window",
+      "source": "Growth",
+      "fnName": "length_of_longest_substring",
+      "prompt": "Given a string s, find the length of the longest substring without repeating characters.",
+      "signature": "def length_of_longest_substring(s):",
+      "starter": "def length_of_longest_substring(s):\n    pass\n",
+      "solution": "def length_of_longest_substring(s):\n    last = {}\n    best = 0\n    start = 0\n    for i, ch in enumerate(s):\n        if ch in last and last[ch] >= start:\n            start = last[ch] + 1\n        last[ch] = i\n        best = max(best, i - start + 1)\n    return best\n",
+      "examples": [
+        { "input": "'abcabcbb'", "output": "3" }
+      ],
+      "tests": [
+        { "label": "Classic", "args": ["abcabcbb"], "expected": 3 },
+        { "label": "All same", "args": ["bbbbb"], "expected": 1 },
+        { "label": "Window slides", "args": ["pwwkew"], "expected": 3 },
+        { "label": "Empty", "args": [""], "expected": 0 }
+      ]
+    },
+    {
+      "id": "growth-min-window-substr",
+      "title": "Minimum Window Substring",
+      "difficulty": "Hard",
+      "track": "Sliding Window",
+      "source": "Growth",
+      "fnName": "min_window",
+      "prompt": "Given strings s and t, return the minimum window substring of s such that every character in t (including duplicates) is included in the window. If no such window exists, return an empty string.",
+      "signature": "def min_window(s, t):",
+      "starter": "def min_window(s, t):\n    pass\n",
+      "solution": "from collections import Counter\n\ndef min_window(s, t):\n    if not t or not s:\n        return \"\"\n    need = Counter(t)\n    missing = len(t)\n    best = (0, float('inf'))\n    left = 0\n    for right, ch in enumerate(s):\n        if need[ch] > 0:\n            missing -= 1\n        need[ch] -= 1\n        while missing == 0:\n            if right - left < best[1] - best[0]:\n                best = (left, right)\n            need[s[left]] += 1\n            if need[s[left]] > 0:\n                missing += 1\n            left += 1\n    if best[1] == float('inf'):\n        return \"\"\n    return s[best[0]:best[1] + 1]\n",
+      "examples": [
+        { "input": "'ADOBECODEBANC', 'ABC'", "output": "'BANC'" }
+      ],
+      "tests": [
+        { "label": "Classic", "args": ["ADOBECODEBANC", "ABC"], "expected": "BANC" },
+        { "label": "Single char", "args": ["a", "a"], "expected": "a" },
+        { "label": "Missing", "args": ["a", "aa"], "expected": "" },
+        { "label": "Case-sensitive miss", "args": ["ab", "bA"], "expected": "" }
+      ]
+    },
+    {
+      "id": "growth-permutation-in-string",
+      "title": "Permutation in String",
+      "difficulty": "Medium",
+      "track": "Sliding Window",
+      "source": "Growth",
+      "fnName": "check_inclusion",
+      "prompt": "Given two strings s1 and s2, return True if s1 is a permutation of a substring of s2 (same character counts), otherwise False.",
+      "signature": "def check_inclusion(s1, s2):",
+      "starter": "def check_inclusion(s1, s2):\n    pass\n",
+      "solution": "from collections import Counter\n\ndef check_inclusion(s1, s2):\n    if len(s1) > len(s2):\n        return False\n    need = Counter(s1)\n    window = Counter(s2[:len(s1)])\n    if window == need:\n        return True\n    for i in range(len(s1), len(s2)):\n        add = s2[i]\n        drop = s2[i - len(s1)]\n        window[add] += 1\n        window[drop] -= 1\n        if window[drop] == 0:\n            del window[drop]\n        if window == need:\n            return True\n    return False\n",
+      "examples": [
+        { "input": "'ab', 'eidbaooo'", "output": "true" }
+      ],
+      "tests": [
+        { "label": "Found", "args": ["ab", "eidbaooo"], "expected": true },
+        { "label": "Not found", "args": ["ab", "eidboaoo"], "expected": false },
+        { "label": "Exact", "args": ["adc", "dcda"], "expected": true },
+        { "label": "Too long s1", "args": ["hello", "ooolleoooleh"], "expected": false }
+      ]
+    },
+    {
+      "id": "growth-daily-temp",
+      "title": "Daily Temperatures",
+      "difficulty": "Medium",
+      "track": "Stack",
+      "source": "Growth",
+      "fnName": "daily_temperatures",
+      "prompt": "Given a list of temperatures temperatures, return a list answer such that answer[i] is the number of days you have to wait after the ith day to get a warmer temperature. If there is no future day, answer[i] = 0.",
+      "signature": "def daily_temperatures(temperatures):",
+      "starter": "def daily_temperatures(temperatures):\n    pass\n",
+      "solution": "def daily_temperatures(temperatures):\n    n = len(temperatures)\n    answer = [0] * n\n    stack = []\n    for i, t in enumerate(temperatures):\n        while stack and temperatures[stack[-1]] < t:\n            j = stack.pop()\n            answer[j] = i - j\n        stack.append(i)\n    return answer\n",
+      "examples": [
+        { "input": "[73, 74, 75, 71, 69, 72, 76, 73]", "output": "[1, 1, 4, 2, 1, 1, 0, 0]" }
+      ],
+      "tests": [
+        { "label": "Classic", "args": [[73, 74, 75, 71, 69, 72, 76, 73]], "expected": [1, 1, 4, 2, 1, 1, 0, 0] },
+        { "label": "Decreasing", "args": [[30, 40, 50, 60]], "expected": [1, 1, 1, 0] },
+        { "label": "Flat", "args": [[30, 60, 90]], "expected": [1, 1, 0] }
+      ]
+    },
+    {
+      "id": "growth-largest-rectangle",
+      "title": "Largest Rectangle in Histogram",
+      "difficulty": "Hard",
+      "track": "Stack",
+      "source": "Growth",
+      "fnName": "largest_rectangle_area",
+      "prompt": "Given a list of integers heights representing the bar height of a histogram with unit width, return the area of the largest rectangle in the histogram.",
+      "signature": "def largest_rectangle_area(heights):",
+      "starter": "def largest_rectangle_area(heights):\n    pass\n",
+      "solution": "def largest_rectangle_area(heights):\n    stack = []\n    best = 0\n    extended = list(heights) + [0]\n    for i, h in enumerate(extended):\n        while stack and extended[stack[-1]] > h:\n            height = extended[stack.pop()]\n            left = stack[-1] if stack else -1\n            width = i - left - 1\n            best = max(best, height * width)\n        stack.append(i)\n    return best\n",
+      "examples": [
+        { "input": "[2, 1, 5, 6, 2, 3]", "output": "10" }
+      ],
+      "tests": [
+        { "label": "Classic", "args": [[2, 1, 5, 6, 2, 3]], "expected": 10 },
+        { "label": "Two bars", "args": [[2, 4]], "expected": 4 },
+        { "label": "Single", "args": [[5]], "expected": 5 },
+        { "label": "Valley", "args": [[1, 1, 1, 1]], "expected": 4 }
+      ]
+    },
+    {
+      "id": "growth-car-fleet",
+      "title": "Car Fleet",
+      "difficulty": "Medium",
+      "track": "Stack",
+      "source": "Growth",
+      "fnName": "car_fleet",
+      "prompt": "There are n cars going to the same destination along a one-lane road. target is the distance. position[i] and speed[i] describe car i. A car cannot pass a slower car ahead; it forms a fleet. Return how many fleets arrive at the destination.",
+      "signature": "def car_fleet(target, position, speed):",
+      "starter": "def car_fleet(target, position, speed):\n    pass\n",
+      "solution": "def car_fleet(target, position, speed):\n    cars = sorted(zip(position, speed), reverse=True)\n    fleets = 0\n    time = 0.0\n    for pos, spd in cars:\n        t = (target - pos) / spd\n        if t > time:\n            fleets += 1\n            time = t\n    return fleets\n",
+      "examples": [
+        { "input": "12, [10, 8, 0, 5, 3], [2, 4, 1, 1, 3]", "output": "3" }
+      ],
+      "tests": [
+        { "label": "Classic", "args": [12, [10, 8, 0, 5, 3], [2, 4, 1, 1, 3]], "expected": 3 },
+        { "label": "One car", "args": [10, [3], [3]], "expected": 1 },
+        { "label": "Catch up", "args": [10, [0, 4, 2], [2, 1, 3]], "expected": 1 }
+      ]
+    },
+    {
+      "id": "growth-search-rotated",
+      "title": "Search in Rotated Sorted Array",
+      "difficulty": "Medium",
+      "track": "Binary Search",
+      "source": "Growth",
+      "fnName": "search_rotated",
+      "prompt": "Given a rotated sorted list of distinct integers nums and an integer target, return the index of target or -1. Aim for O(log n).",
+      "signature": "def search_rotated(nums, target):",
+      "starter": "def search_rotated(nums, target):\n    pass\n",
+      "solution": "def search_rotated(nums, target):\n    lo, hi = 0, len(nums) - 1\n    while lo <= hi:\n        mid = (lo + hi) // 2\n        if nums[mid] == target:\n            return mid\n        if nums[lo] <= nums[mid]:\n            if nums[lo] <= target < nums[mid]:\n                hi = mid - 1\n            else:\n                lo = mid + 1\n        else:\n            if nums[mid] < target <= nums[hi]:\n                lo = mid + 1\n            else:\n                hi = mid - 1\n    return -1\n",
+      "examples": [
+        { "input": "[4, 5, 6, 7, 0, 1, 2], 0", "output": "4" }
+      ],
+      "tests": [
+        { "label": "Classic", "args": [[4, 5, 6, 7, 0, 1, 2], 0], "expected": 4 },
+        { "label": "Missing", "args": [[4, 5, 6, 7, 0, 1, 2], 3], "expected": -1 },
+        { "label": "Single", "args": [[1], 0], "expected": -1 },
+        { "label": "No rotation", "args": [[1, 2, 3, 4, 5], 3], "expected": 2 }
+      ]
+    },
+    {
+      "id": "growth-koko-bananas",
+      "title": "Koko Eating Bananas",
+      "difficulty": "Medium",
+      "track": "Binary Search",
+      "source": "Growth",
+      "fnName": "min_eating_speed",
+      "prompt": "Given piles[i] banana piles and h hours, Koko eats at speed k (piles per hour from one pile, remainder takes another hour). Return the minimum integer k such that she can finish all piles within h hours.",
+      "signature": "def min_eating_speed(piles, h):",
+      "starter": "def min_eating_speed(piles, h):\n    pass\n",
+      "solution": "import math\n\ndef min_eating_speed(piles, h):\n    lo, hi = 1, max(piles)\n    while lo < hi:\n        mid = (lo + hi) // 2\n        hours = sum(math.ceil(p / mid) for p in piles)\n        if hours <= h:\n            hi = mid\n        else:\n            lo = mid + 1\n    return lo\n",
+      "examples": [
+        { "input": "[3, 6, 7, 11], 8", "output": "4" }
+      ],
+      "tests": [
+        { "label": "Classic", "args": [[3, 6, 7, 11], 8], "expected": 4 },
+        { "label": "Tight hours", "args": [[30, 11, 23, 4, 20], 5], "expected": 30 },
+        { "label": "Many hours", "args": [[30, 11, 23, 4, 20], 6], "expected": 23 },
+        { "label": "One pile", "args": [[31], 30], "expected": 2 }
+      ]
+    },
+    {
+      "id": "growth-median-streams",
+      "title": "Median of Two Sorted Arrays",
+      "difficulty": "Hard",
+      "track": "Binary Search",
+      "source": "Growth",
+      "fnName": "find_median_sorted_arrays",
+      "prompt": "Given two sorted lists nums1 and nums2, return the median of the two sorted lists. Overall run time should be O(log(m+n)).",
+      "signature": "def find_median_sorted_arrays(nums1, nums2):",
+      "starter": "def find_median_sorted_arrays(nums1, nums2):\n    pass\n",
+      "solution": "def find_median_sorted_arrays(nums1, nums2):\n    if len(nums1) > len(nums2):\n        nums1, nums2 = nums2, nums1\n    m, n = len(nums1), len(nums2)\n    lo, hi = 0, m\n    half = (m + n + 1) // 2\n    while lo <= hi:\n        i = (lo + hi) // 2\n        j = half - i\n        left1 = nums1[i - 1] if i > 0 else float('-inf')\n        right1 = nums1[i] if i < m else float('inf')\n        left2 = nums2[j - 1] if j > 0 else float('-inf')\n        right2 = nums2[j] if j < n else float('inf')\n        if left1 <= right2 and left2 <= right1:\n            if (m + n) % 2:\n                return max(left1, left2)\n            return (max(left1, left2) + min(right1, right2)) / 2\n        if left1 > right2:\n            hi = i - 1\n        else:\n            lo = i + 1\n    raise ValueError('inputs not sorted')\n",
+      "examples": [
+        { "input": "[1, 3], [2]", "output": "2" }
+      ],
+      "tests": [
+        { "label": "Odd total", "args": [[1, 3], [2]], "expected": 2 },
+        { "label": "Even total", "args": [[1, 2], [3, 4]], "expected": 2.5 },
+        { "label": "Empty one", "args": [[], [1]], "expected": 1 },
+        { "label": "Disjoint", "args": [[1, 2], [10, 20, 30]], "expected": 10 }
+      ]
+    },
+    {
+      "id": "growth-merge-intervals",
+      "title": "Merge Intervals",
+      "difficulty": "Medium",
+      "track": "Intervals",
+      "source": "Growth",
+      "fnName": "merge_intervals",
+      "prompt": "Given a list of intervals where intervals[i] = [start, end], merge all overlapping intervals and return a list of non-overlapping intervals sorted by start.",
+      "signature": "def merge_intervals(intervals):",
+      "starter": "def merge_intervals(intervals):\n    pass\n",
+      "solution": "def merge_intervals(intervals):\n    if not intervals:\n        return []\n    intervals = sorted(intervals)\n    merged = [list(intervals[0])]\n    for start, end in intervals[1:]:\n        if start <= merged[-1][1]:\n            merged[-1][1] = max(merged[-1][1], end)\n        else:\n            merged.append([start, end])\n    return merged\n",
+      "examples": [
+        { "input": "[[1, 3], [2, 6], [8, 10], [15, 18]]", "output": "[[1, 6], [8, 10], [15, 18]]" }
+      ],
+      "tests": [
+        { "label": "Classic", "args": [[[1, 3], [2, 6], [8, 10], [15, 18]]], "expected": [[1, 6], [8, 10], [15, 18]] },
+        { "label": "Touching", "args": [[[1, 4], [4, 5]]], "expected": [[1, 5]] },
+        { "label": "Single", "args": [[[1, 4]]], "expected": [[1, 4]] },
+        { "label": "Unsorted", "args": [[[8, 10], [1, 3], [2, 6]]], "expected": [[1, 6], [8, 10]] }
+      ]
+    },
+    {
+      "id": "growth-insert-interval",
+      "title": "Insert Interval",
+      "difficulty": "Medium",
+      "track": "Intervals",
+      "source": "Growth",
+      "fnName": "insert_interval",
+      "prompt": "Given a list of non-overlapping intervals sorted by start and a new interval, insert new_interval into the list and merge if necessary. Return the result sorted by start.",
+      "signature": "def insert_interval(intervals, new_interval):",
+      "starter": "def insert_interval(intervals, new_interval):\n    pass\n",
+      "solution": "def insert_interval(intervals, new_interval):\n    result = []\n    i = 0\n    n = len(intervals)\n    while i < n and intervals[i][1] < new_interval[0]:\n        result.append(intervals[i])\n        i += 1\n    while i < n and intervals[i][0] <= new_interval[1]:\n        new_interval[0] = min(new_interval[0], intervals[i][0])\n        new_interval[1] = max(new_interval[1], intervals[i][1])\n        i += 1\n    result.append(new_interval)\n    while i < n:\n        result.append(intervals[i])\n        i += 1\n    return result\n",
+      "examples": [
+        { "input": "[[1, 3], [6, 9]], [2, 5]", "output": "[[1, 5], [6, 9]]" }
+      ],
+      "tests": [
+        { "label": "Classic", "args": [[[1, 3], [6, 9]], [2, 5]], "expected": [[1, 5], [6, 9]] },
+        { "label": "Merge many", "args": [[[1, 2], [3, 5], [6, 7], [8, 10], [12, 16]], [4, 8]], "expected": [[1, 2], [3, 10], [12, 16]] },
+        { "label": "Empty", "args": [[], [5, 7]], "expected": [[5, 7]] },
+        { "label": "Before all", "args": [[[3, 5]], [1, 2]], "expected": [[1, 2], [3, 5]] }
+      ]
+    },
+    {
+      "id": "growth-meeting-rooms",
+      "title": "Meeting Rooms II",
+      "difficulty": "Medium",
+      "track": "Intervals",
+      "source": "Growth",
+      "fnName": "min_meeting_rooms",
+      "prompt": "Given a list of meeting time intervals [start, end), return the minimum number of conference rooms required.",
+      "signature": "def min_meeting_rooms(intervals):",
+      "starter": "def min_meeting_rooms(intervals):\n    pass\n",
+      "solution": "import heapq\n\ndef min_meeting_rooms(intervals):\n    if not intervals:\n        return 0\n    intervals = sorted(intervals)\n    rooms = []\n    for start, end in intervals:\n        if rooms and rooms[0] <= start:\n            heapq.heappop(rooms)\n        heapq.heappush(rooms, end)\n    return len(rooms)\n",
+      "examples": [
+        { "input": "[[0, 30], [5, 10], [15, 20]]", "output": "2" }
+      ],
+      "tests": [
+        { "label": "Overlap", "args": [[[0, 30], [5, 10], [15, 20]]], "expected": 2 },
+        { "label": "Sequential", "args": [[[7, 10], [2, 4]]], "expected": 1 },
+        { "label": "Many rooms", "args": [[[1, 5], [2, 6], [3, 7], [4, 8]]], "expected": 4 },
+        { "label": "Empty", "args": [[]], "expected": 0 }
+      ]
+    },
+    {
+      "id": "growth-num-islands",
+      "title": "Number of Islands",
+      "difficulty": "Medium",
+      "track": "Graphs",
+      "source": "Growth",
+      "fnName": "num_islands",
+      "prompt": "Given an m x n binary grid of '1' (land) and '0' (water), return the number of islands. An island is surrounded by water and formed by connecting adjacent lands horizontally or vertically.",
+      "signature": "def num_islands(grid):",
+      "starter": "def num_islands(grid):\n    pass\n",
+      "solution": "def num_islands(grid):\n    if not grid:\n        return 0\n    rows, cols = len(grid), len(grid[0])\n    count = 0\n\n    def sink(r, c):\n        if r < 0 or c < 0 or r >= rows or c >= cols or grid[r][c] != '1':\n            return\n        grid[r][c] = '0'\n        sink(r + 1, c)\n        sink(r - 1, c)\n        sink(r, c + 1)\n        sink(r, c - 1)\n\n    for r in range(rows):\n        for c in range(cols):\n            if grid[r][c] == '1':\n                count += 1\n                sink(r, c)\n    return count\n",
+      "examples": [
+        { "input": "grid with one island of 1s", "output": "1" }
+      ],
+      "tests": [
+        {
+          "label": "One island",
+          "args": [[["1", "1", "1", "1", "0"], ["1", "1", "0", "1", "0"], ["1", "1", "0", "0", "0"], ["0", "0", "0", "0", "0"]]],
+          "expected": 1
+        },
+        {
+          "label": "Three islands",
+          "args": [[["1", "1", "0", "0", "0"], ["1", "1", "0", "0", "0"], ["0", "0", "1", "0", "0"], ["0", "0", "0", "1", "1"]]],
+          "expected": 3
+        },
+        { "label": "All water", "args": [[["0", "0"], ["0", "0"]]], "expected": 0 },
+        { "label": "Single land", "args": [[["1"]]], "expected": 1 }
+      ]
+    },
+    {
+      "id": "growth-course-schedule",
+      "title": "Course Schedule",
+      "difficulty": "Medium",
+      "track": "Graphs",
+      "source": "Growth",
+      "fnName": "can_finish",
+      "prompt": "There are num_courses courses labeled 0..num_courses-1. prerequisites[i] = [a, b] means b must be taken before a. Return True if you can finish all courses (no cycle).",
+      "signature": "def can_finish(num_courses, prerequisites):",
+      "starter": "def can_finish(num_courses, prerequisites):\n    pass\n",
+      "solution": "from collections import defaultdict, deque\n\ndef can_finish(num_courses, prerequisites):\n    graph = defaultdict(list)\n    indeg = [0] * num_courses\n    for a, b in prerequisites:\n        graph[b].append(a)\n        indeg[a] += 1\n    q = deque([i for i in range(num_courses) if indeg[i] == 0])\n    taken = 0\n    while q:\n        node = q.popleft()\n        taken += 1\n        for nxt in graph[node]:\n            indeg[nxt] -= 1\n            if indeg[nxt] == 0:\n                q.append(nxt)\n    return taken == num_courses\n",
+      "examples": [
+        { "input": "2, [[1, 0]]", "output": "true" }
+      ],
+      "tests": [
+        { "label": "Simple chain", "args": [2, [[1, 0]]], "expected": true },
+        { "label": "Cycle", "args": [2, [[1, 0], [0, 1]]], "expected": false },
+        { "label": "Independent", "args": [3, []], "expected": true },
+        { "label": "Long chain", "args": [4, [[1, 0], [2, 1], [3, 2]]], "expected": true }
+      ]
+    },
+    {
+      "id": "growth-pacific-atlantic",
+      "title": "Pacific Atlantic Water Flow",
+      "difficulty": "Medium",
+      "track": "Graphs",
+      "source": "Growth",
+      "fnName": "pacific_atlantic",
+      "prompt": "Given an m x n matrix heights, water can flow to a cell if the neighbor height is <= current. Return coordinates [r, c] from which water can flow to both the Pacific (top/left) and Atlantic (bottom/right) oceans, sorted by row then column.",
+      "signature": "def pacific_atlantic(heights):",
+      "starter": "def pacific_atlantic(heights):\n    pass\n",
+      "solution": "def pacific_atlantic(heights):\n    if not heights:\n        return []\n    rows, cols = len(heights), len(heights[0])\n\n    def dfs(starts):\n        seen = set()\n        stack = list(starts)\n        while stack:\n            r, c = stack.pop()\n            if (r, c) in seen:\n                continue\n            seen.add((r, c))\n            for dr, dc in ((1, 0), (-1, 0), (0, 1), (0, -1)):\n                nr, nc = r + dr, c + dc\n                if 0 <= nr < rows and 0 <= nc < cols and (nr, nc) not in seen:\n                    if heights[nr][nc] >= heights[r][c]:\n                        stack.append((nr, nc))\n        return seen\n\n    pacific = [(r, 0) for r in range(rows)] + [(0, c) for c in range(cols)]\n    atlantic = [(r, cols - 1) for r in range(rows)] + [(rows - 1, c) for c in range(cols)]\n    both = dfs(pacific) & dfs(atlantic)\n    return sorted([list(p) for p in both])\n",
+      "examples": [
+        { "input": "2x3 height grid", "output": "cells that reach both oceans" }
+      ],
+      "tests": [
+        {
+          "label": "Classic",
+          "args": [[[1, 2, 2, 3, 5], [3, 2, 3, 4, 4], [2, 4, 5, 3, 1], [6, 7, 1, 4, 5], [5, 1, 1, 2, 4]]],
+          "expected": [[0, 4], [1, 3], [1, 4], [2, 2], [3, 0], [3, 1], [4, 0]]
+        },
+        {
+          "label": "Single cell",
+          "args": [[[1]]],
+          "expected": [[0, 0]]
+        },
+        {
+          "label": "Flat grid",
+          "args": [[[1, 1], [1, 1]]],
+          "expected": [[0, 0], [0, 1], [1, 0], [1, 1]]
+        }
+      ]
+    },
+    {
+      "id": "growth-climb-stairs",
+      "title": "Climbing Stairs",
+      "difficulty": "Easy",
+      "track": "Dynamic Programming",
+      "source": "Growth",
+      "fnName": "climb_stairs",
+      "prompt": "You are climbing a staircase with n steps. Each time you can climb 1 or 2 steps. In how many distinct ways can you climb to the top?",
+      "signature": "def climb_stairs(n):",
+      "starter": "def climb_stairs(n):\n    pass\n",
+      "solution": "def climb_stairs(n):\n    if n <= 2:\n        return n\n    a, b = 1, 2\n    for _ in range(3, n + 1):\n        a, b = b, a + b\n    return b\n",
+      "examples": [
+        { "input": "3", "output": "3" }
+      ],
+      "tests": [
+        { "label": "n=2", "args": [2], "expected": 2 },
+        { "label": "n=3", "args": [3], "expected": 3 },
+        { "label": "n=5", "args": [5], "expected": 8 },
+        { "label": "n=10", "args": [10], "expected": 89 }
+      ]
+    },
+    {
+      "id": "growth-coin-change",
+      "title": "Coin Change",
+      "difficulty": "Medium",
+      "track": "Dynamic Programming",
+      "source": "Growth",
+      "fnName": "coin_change",
+      "prompt": "Given coin denominations coins and an integer amount, return the fewest number of coins needed to make amount. If it cannot be made, return -1. You have infinite coins of each denomination.",
+      "signature": "def coin_change(coins, amount):",
+      "starter": "def coin_change(coins, amount):\n    pass\n",
+      "solution": "def coin_change(coins, amount):\n    dp = [0] + [float('inf')] * amount\n    for a in range(1, amount + 1):\n        for c in coins:\n            if c <= a and dp[a - c] + 1 < dp[a]:\n                dp[a] = dp[a - c] + 1\n    return -1 if dp[amount] == float('inf') else int(dp[amount])\n",
+      "examples": [
+        { "input": "[1, 2, 5], 11", "output": "3" }
+      ],
+      "tests": [
+        { "label": "Classic", "args": [[1, 2, 5], 11], "expected": 3 },
+        { "label": "Impossible", "args": [[2], 3], "expected": -1 },
+        { "label": "Zero", "args": [[1], 0], "expected": 0 },
+        { "label": "Single coin", "args": [[1], 2], "expected": 2 }
+      ]
+    },
+    {
+      "id": "growth-longest-increasing",
+      "title": "Longest Increasing Subsequence",
+      "difficulty": "Medium",
+      "track": "Dynamic Programming",
+      "source": "Growth",
+      "fnName": "length_of_lis",
+      "prompt": "Given an integer list nums, return the length of the longest strictly increasing subsequence.",
+      "signature": "def length_of_lis(nums):",
+      "starter": "def length_of_lis(nums):\n    pass\n",
+      "solution": "import bisect\n\ndef length_of_lis(nums):\n    tails = []\n    for n in nums:\n        i = bisect.bisect_left(tails, n)\n        if i == len(tails):\n            tails.append(n)\n        else:\n            tails[i] = n\n    return len(tails)\n",
+      "examples": [
+        { "input": "[10, 9, 2, 5, 3, 7, 101, 18]", "output": "4" }
+      ],
+      "tests": [
+        { "label": "Classic", "args": [[10, 9, 2, 5, 3, 7, 101, 18]], "expected": 4 },
+        { "label": "Decreasing", "args": [[7, 7, 7, 7]], "expected": 1 },
+        { "label": "Empty", "args": [[]], "expected": 0 },
+        { "label": "Strict increase", "args": [[1, 2, 3, 4]], "expected": 4 }
+      ]
+    },
+    {
+      "id": "growth-word-break",
+      "title": "Word Break",
+      "difficulty": "Medium",
+      "track": "Dynamic Programming",
+      "source": "Growth",
+      "fnName": "word_break",
+      "prompt": "Given a string s and a list of words wordDict, return True if s can be segmented into a space-separated sequence of one or more dictionary words. Words may be reused.",
+      "signature": "def word_break(s, wordDict):",
+      "starter": "def word_break(s, wordDict):\n    pass\n",
+      "solution": "def word_break(s, wordDict):\n    words = set(wordDict)\n    n = len(s)\n    dp = [False] * (n + 1)\n    dp[0] = True\n    for i in range(1, n + 1):\n        for j in range(i):\n            if dp[j] and s[j:i] in words:\n                dp[i] = True\n                break\n    return dp[n]\n",
+      "examples": [
+        { "input": "'leetcode', ['leet', 'code']", "output": "true" }
+      ],
+      "tests": [
+        { "label": "Classic", "args": ["leetcode", ["leet", "code"]], "expected": true },
+        { "label": "Reuse words", "args": ["catsandog", ["cats", "dog", "sand", "and", "cat"]], "expected": false },
+        { "label": "Apple pen", "args": ["applepenapple", ["apple", "pen"]], "expected": true },
+        { "label": "No match", "args": ["abc", ["ab"]], "expected": false }
+      ]
+    },
+    {
+      "id": "growth-jump-game",
+      "title": "Jump Game",
+      "difficulty": "Medium",
+      "track": "Greedy",
+      "source": "Growth",
+      "fnName": "can_jump",
+      "prompt": "Given a list of non-negative integers nums where nums[i] is the maximum jump length from index i, return True if you can reach the last index starting from index 0.",
+      "signature": "def can_jump(nums):",
+      "starter": "def can_jump(nums):\n    pass\n",
+      "solution": "def can_jump(nums):\n    reach = 0\n    for i, n in enumerate(nums):\n        if i > reach:\n            return False\n        reach = max(reach, i + n)\n        if reach >= len(nums) - 1:\n            return True\n    return True\n",
+      "examples": [
+        { "input": "[2, 3, 1, 1, 4]", "output": "true" }
+      ],
+      "tests": [
+        { "label": "Can jump", "args": [[2, 3, 1, 1, 4]], "expected": true },
+        { "label": "Stuck", "args": [[3, 2, 1, 0, 4]], "expected": false },
+        { "label": "Single", "args": [[0]], "expected": true },
+        { "label": "Two zeros", "args": [[2, 0, 0]], "expected": true }
+      ]
+    },
+    {
+      "id": "growth-gas-station",
+      "title": "Gas Station",
+      "difficulty": "Medium",
+      "track": "Greedy",
+      "source": "Growth",
+      "fnName": "can_complete_circuit",
+      "prompt": "There are n gas stations in a circle. gas[i] is gas at station i; cost[i] is cost to travel to the next. Return the starting station index if you can travel around once, otherwise -1. If a solution exists it is unique.",
+      "signature": "def can_complete_circuit(gas, cost):",
+      "starter": "def can_complete_circuit(gas, cost):\n    pass\n",
+      "solution": "def can_complete_circuit(gas, cost):\n    if sum(gas) < sum(cost):\n        return -1\n    start = 0\n    tank = 0\n    for i in range(len(gas)):\n        tank += gas[i] - cost[i]\n        if tank < 0:\n            start = i + 1\n            tank = 0\n    return start\n",
+      "examples": [
+        { "input": "[1, 2, 3, 4, 5], [3, 4, 5, 1, 2]", "output": "3" }
+      ],
+      "tests": [
+        { "label": "Classic", "args": [[1, 2, 3, 4, 5], [3, 4, 5, 1, 2]], "expected": 3 },
+        { "label": "Impossible", "args": [[2, 3, 4], [3, 4, 3]], "expected": -1 },
+        { "label": "Start later", "args": [[5, 1, 2], [4, 3, 1]], "expected": 2 },
+        { "label": "Single station", "args": [[2], [3]], "expected": -1 }
+      ]
+    },
+    {
+      "id": "growth-hand-straights",
+      "title": "Hand of Straights",
+      "difficulty": "Medium",
+      "track": "Greedy",
+      "source": "Growth",
+      "fnName": "is_n_straight_hand",
+      "prompt": "Given a list of integers hand and an integer group_size, return True if the hand can be rearranged into groups of group_size consecutive cards. group_size must divide the hand length.",
+      "signature": "def is_n_straight_hand(hand, group_size):",
+      "starter": "def is_n_straight_hand(hand, group_size):\n    pass\n",
+      "solution": "from collections import Counter\n\ndef is_n_straight_hand(hand, group_size):\n    if group_size == 1:\n        return True\n    if len(hand) % group_size:\n        return False\n    count = Counter(hand)\n    for card in sorted(count):\n        while count[card] > 0:\n            for x in range(card, card + group_size):\n                if count[x] == 0:\n                    return False\n                count[x] -= 1\n    return True\n",
+      "examples": [
+        { "input": "[1, 2, 3, 6, 2, 3, 4, 7, 8], 3", "output": "true" }
+      ],
+      "tests": [
+        { "label": "Possible", "args": [[1, 2, 3, 6, 2, 3, 4, 7, 8], 3], "expected": true },
+        { "label": "Impossible", "args": [[1, 2, 3, 4, 5], 4], "expected": false },
+        { "label": "Size one", "args": [[1, 2, 3], 1], "expected": true },
+        { "label": "Length not divisible", "args": [[1, 2, 3], 2], "expected": false }
+      ]
+    },
+    {
+      "id": "growth-partition-labels",
+      "title": "Partition Labels",
+      "difficulty": "Medium",
+      "track": "Greedy",
+      "source": "Growth",
+      "fnName": "partition_labels",
+      "prompt": "Given a string s of lowercase letters, partition it into as many parts as possible so that each letter appears in at most one part, and return the sizes of the parts.",
+      "signature": "def partition_labels(s):",
+      "starter": "def partition_labels(s):\n    pass\n",
+      "solution": "def partition_labels(s):\n    last = {ch: i for i, ch in enumerate(s)}\n    result = []\n    start = end = 0\n    for i, ch in enumerate(s):\n        end = max(end, last[ch])\n        if i == end:\n            result.append(end - start + 1)\n            start = i + 1\n    return result\n",
+      "examples": [
+        { "input": "'ababcbacadefegdehijhklij'", "output": "[9, 7, 8]" }
+      ],
+      "tests": [
+        { "label": "Classic", "args": ["ababcbacadefegdehijhklij"], "expected": [9, 7, 8] },
+        { "label": "One letter", "args": ["aaa"], "expected": [3] },
+        { "label": "All distinct", "args": ["abc"], "expected": [1, 1, 1] },
+        { "label": "Two parts", "args": ["eccbbbbdec"], "expected": [10] }
+      ]
+    },
+    {
+      "id": "growth-lru-cache",
+      "title": "Design LRU Cache (function API)",
+      "difficulty": "Hard",
+      "track": "Design",
+      "source": "Growth",
+      "fnName": "lru_operations",
+      "prompt": "Simulate an LRU cache with capacity. Given a list of operations and capacity, return the list of get results (None/null for misses). Operations are ['put', key, value] or ['get', key].",
+      "signature": "def lru_operations(operations, capacity):",
+      "starter": "def lru_operations(operations, capacity):\n    pass\n",
+      "solution": "from collections import OrderedDict\n\ndef lru_operations(operations, capacity):\n    cache = OrderedDict()\n    results = []\n    for op in operations:\n        if op[0] == 'put':\n            _, key, value = op\n            if key in cache:\n                cache.move_to_end(key)\n            cache[key] = value\n            if len(cache) > capacity:\n                cache.popitem(last=False)\n        else:\n            _, key = op\n            if key in cache:\n                cache.move_to_end(key)\n                results.append(cache[key])\n            else:\n                results.append(None)\n    return results\n",
+      "examples": [
+        { "input": "puts and gets with capacity 2", "output": "list of get values" }
+      ],
+      "tests": [
+        {
+          "label": "Classic sequence",
+          "args": [[["put", 1, 1], ["put", 2, 2], ["get", 1], ["put", 3, 3], ["get", 2], ["put", 4, 4], ["get", 1], ["get", 3], ["get", 4]], 2],
+          "expected": [1, null, null, 3, 4]
+        },
+        {
+          "label": "Update existing",
+          "args": [[["put", 1, 1], ["put", 1, 2], ["get", 1]], 2],
+          "expected": [2]
+        },
+        {
+          "label": "Miss only",
+          "args": [[["get", 1], ["get", 2]], 1],
+          "expected": [null, null]
+        }
+      ]
+    },
+    {
+      "id": "growth-evaluate-rpn",
+      "title": "Evaluate Reverse Polish Notation",
+      "difficulty": "Medium",
+      "track": "Stack",
+      "source": "Growth",
+      "fnName": "eval_rpn",
+      "prompt": "Given a list of tokens in Reverse Polish Notation, evaluate the expression and return the integer result. Division truncates toward zero.",
+      "signature": "def eval_rpn(tokens):",
+      "starter": "def eval_rpn(tokens):\n    pass\n",
+      "solution": "def eval_rpn(tokens):\n    stack = []\n    for t in tokens:\n        if t in '+-*/':\n            b = stack.pop()\n            a = stack.pop()\n            if t == '+':\n                stack.append(a + b)\n            elif t == '-':\n                stack.append(a - b)\n            elif t == '*':\n                stack.append(a * b)\n            else:\n                # truncate toward zero\n                stack.append(int(a / b))\n        else:\n            stack.append(int(t))\n    return stack[0]\n",
+      "examples": [
+        { "input": "['2', '1', '+', '3', '*']", "output": "9" }
+      ],
+      "tests": [
+        { "label": "Classic", "args": [["2", "1", "+", "3", "*"]], "expected": 9 },
+        { "label": "Div chain", "args": [["4", "13", "5", "/", "+"]], "expected": 6 },
+        { "label": "Negative div truncate", "args": [["-13", "5", "/"]], "expected": -2 },
+        { "label": "Single", "args": [["42"]], "expected": 42 }
+      ]
+    }
+  ]
+}

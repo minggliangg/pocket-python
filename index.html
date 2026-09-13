@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/icons/icon-192.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#0F766E" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="description" content="Practice Python problems offline on your phone." />
+    <title>Pocket Python</title>
+    <script>
+      // Apply theme before first paint to avoid a flash
+      (function () {
+        try {
+          var stored = localStorage.getItem('pocket-python-theme')
+          var prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches
+          var theme = stored === 'light' || stored === 'dark' ? stored : (prefersDark ? 'dark' : 'light')
+          document.documentElement.dataset.theme = theme
+          var meta = document.querySelector('meta[name="theme-color"]')
+          if (meta) meta.setAttribute('content', theme === 'dark' ? '#0c0a09' : '#0F766E')
+        } catch (e) {}
+      })()
+    </script>
+  </head>
+  <body>
+    <div id="app" class="app">
+      <header class="app-header">
+        <div class="brand">
+          <button type="button" id="back-btn" class="icon-btn hidden" aria-label="Back to problems">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+              <path d="M12.5 4.5L7 10l5.5 5.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+          <h1 class="brand-title">Pocket Python</h1>
+        </div>
+        <div class="header-meta">
+          <span id="progress-label" class="progress-label" aria-live="polite">0/0</span>
+          <button type="button" id="theme-toggle" class="icon-btn theme-btn" aria-label="Toggle dark mode" title="Toggle dark mode">
+            <svg class="icon-sun" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <circle cx="12" cy="12" r="4" stroke="currentColor" stroke-width="1.8"/>
+              <path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+            </svg>
+            <svg class="icon-moon" width="18" height="18" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+              <path d="M20 14.5A8.5 8.5 0 0 1 9.5 4 7 7 0 1 0 20 14.5Z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+      </header>
+
+      <main id="view-list" class="view">
+        <p class="list-intro">Core drills plus a progressive growth track. Solutions run offline in your browser.</p>
+        <div class="list-tools">
+          <input
+            id="search-input"
+            class="search-input"
+            type="search"
+            placeholder="Search problems…"
+            autocomplete="off"
+            enterkeyhint="search"
+          />
+          <select id="pack-filter" class="pack-filter" aria-label="Filter by pack">
+            <option value="all">All packs</option>
+            <option value="core">Arrays &amp; hash-maps</option>
+            <option value="growth">Growth Track</option>
+          </select>
+        </div>
+        <div class="list-actions">
+          <button type="button" id="btn-clear-progress" class="text-btn">Clear completed</button>
+          <button type="button" id="btn-clear-drafts" class="text-btn subtle">Clear drafts</button>
+        </div>
+        <ol id="problem-list" class="problem-list"></ol>
+        <p id="list-empty" class="status-line hidden">No problems match that search.</p>
+      </main>
+
+      <main id="view-problem" class="view hidden">
+        <section class="problem-statement" aria-labelledby="problem-title">
+          <div class="problem-meta">
+            <span id="problem-index" class="problem-index"></span>
+            <span id="problem-difficulty" class="difficulty"></span>
+            <span id="problem-source" class="source-badge hidden"></span>
+            <button type="button" id="btn-unsolved" class="text-btn mini hidden" title="Mark this problem incomplete">Mark unsolved</button>
+          </div>
+          <h2 id="problem-title" class="problem-title"></h2>
+          <p id="problem-prompt" class="problem-prompt"></p>
+          <pre id="problem-signature" class="signature"></pre>
+          <ul id="problem-examples" class="examples"></ul>
+        </section>
+
+        <section class="editor-section" aria-label="Code editor">
+          <div id="editor" class="editor"></div>
+        </section>
+
+        <div class="toolbar" role="toolbar" aria-label="Editor actions">
+          <button type="button" class="tool-btn" id="btn-tab" title="Insert indent">Tab</button>
+          <button type="button" class="tool-btn" id="btn-outdent" title="Outdent">⇤</button>
+          <button type="button" class="tool-btn" id="btn-reset" title="Reset starter code">Reset</button>
+          <button type="button" class="run-btn" id="btn-run">
+            <span class="run-label">Run</span>
+          </button>
+        </div>
+
+        <section id="results" class="results hidden" aria-live="polite" aria-atomic="true"></section>
+
+        <section class="solution-section">
+          <button type="button" id="btn-solution" class="solution-toggle" aria-expanded="false" aria-controls="solution-panel">
+            Show solution
+          </button>
+          <div id="solution-panel" class="solution-panel hidden">
+            <div class="solution-head">
+              <span>Reference solution</span>
+              <button type="button" id="btn-insert-solution" class="tool-btn small">Insert into editor</button>
+            </div>
+            <pre id="solution-code" class="solution-code"></pre>
+            <p class="solution-note">Peeking is fine — try the tests yourself first when you can.</p>
+          </div>
+        </section>
+      </main>
+
+      <button type="button" id="progress-fab" class="progress-fab" aria-label="Show 3D progress" title="Progress">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+          <path d="M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+          <path d="M12 3v18M4 7.5l8 4.5 8-4.5" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/>
+        </svg>
+        <span id="fab-count" class="fab-count">0</span>
+      </button>
+
+      <div id="progress-modal" class="progress-modal hidden" role="dialog" aria-modal="true" aria-labelledby="progress-modal-title">
+        <div class="progress-sheet">
+          <div class="progress-sheet-head">
+            <h2 id="progress-modal-title">A.T. Field — Progress</h2>
+            <button type="button" id="progress-close" class="icon-btn" aria-label="Close progress">
+              <svg width="18" height="18" viewBox="0 0 20 20" fill="none" aria-hidden="true">
+                <path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+              </svg>
+            </button>
+          </div>
+          <div id="progress-canvas" class="progress-canvas" aria-hidden="true"></div>
+          <div class="progress-stats">
+            <div class="stat">
+              <span id="stat-solved" class="stat-value">0</span>
+              <span class="stat-label">Synced</span>
+            </div>
+            <div class="stat">
+              <span id="stat-total" class="stat-value">0</span>
+              <span class="stat-label">Targets</span>
+            </div>
+            <div class="stat">
+              <span id="stat-pct" class="stat-value">0%</span>
+              <span class="stat-label">Activation</span>
+            </div>
+          </div>
+          <p class="progress-hint">Drag to orbit the core · pinch or scroll to zoom. Lit hexes and green nodes are completed drills. The barrier strengthens as sync ratio rises.</p>
+        </div>
+      </div>
+
+      <div id="toast" class="toast hidden" role="status"></div>
+    </div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
