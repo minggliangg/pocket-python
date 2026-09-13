@@ -202,118 +202,316 @@ export function mountProgressScene(container, { solvedCount, totalCount } = {}) 
   root.add(floor)
 
   // —— Tiny Eva units (00, 01, 02) — slower patrol orbits ——
-  function buildEva(bodyColor, bodyEmissive, trimColor, finColor) {
+  // Built from tapered cylinders + cones for a readable mecha silhouette
+  // (long legs, narrow waist, huge shoulder pylons, single-eye head + horn).
+  function buildEva({ body, bodyDark, trim, visor, accent }) {
     const g = new THREE.Group()
-    const bodyMat = new THREE.MeshStandardMaterial({
-      color: bodyColor,
-      emissive: bodyEmissive,
-      emissiveIntensity: 0.35,
-      metalness: 0.5,
+
+    const matBody = new THREE.MeshStandardMaterial({
+      color: body,
+      emissive: bodyDark,
+      emissiveIntensity: 0.25,
+      metalness: 0.55,
+      roughness: 0.32,
+      flatShading: true,
+      transparent: true,
+      opacity: 1,
+    })
+    const matDark = new THREE.MeshStandardMaterial({
+      color: bodyDark,
+      emissive: bodyDark,
+      emissiveIntensity: 0.15,
+      metalness: 0.4,
+      roughness: 0.5,
+      flatShading: true,
+      transparent: true,
+      opacity: 1,
+    })
+    const matTrim = new THREE.MeshStandardMaterial({
+      color: trim,
+      emissive: trim,
+      emissiveIntensity: 0.7,
+      metalness: 0.25,
       roughness: 0.35,
       flatShading: true,
       transparent: true,
       opacity: 1,
     })
-    const trimMat = new THREE.MeshStandardMaterial({
-      color: trimColor,
-      emissive: trimColor,
-      emissiveIntensity: 0.65,
-      metalness: 0.2,
+    const matVisor = new THREE.MeshStandardMaterial({
+      color: visor,
+      emissive: visor,
+      emissiveIntensity: 1.1,
+      metalness: 0.1,
+      roughness: 0.2,
+      transparent: true,
+      opacity: 1,
+    })
+    const matAccent = new THREE.MeshStandardMaterial({
+      color: accent,
+      emissive: accent,
+      emissiveIntensity: 0.55,
+      metalness: 0.3,
       roughness: 0.4,
       flatShading: true,
       transparent: true,
       opacity: 1,
     })
-    const finMat = new THREE.MeshStandardMaterial({
-      color: finColor,
-      emissive: finColor,
-      emissiveIntensity: 0.4,
-      flatShading: true,
-      transparent: true,
-      opacity: 1,
-    })
 
-    const torso = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.28, 0.12), bodyMat)
-    g.add(torso)
-    const head = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.12, 0.12), bodyMat)
-    head.position.y = 0.22
-    g.add(head)
-    const crest = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.08, 0.02), trimMat)
-    crest.position.set(0, 0.28, 0.05)
-    g.add(crest)
-    const eye = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.02, 0.02), trimMat)
-    eye.position.set(0, 0.22, 0.06)
-    g.add(eye)
-    const chest = new THREE.Mesh(new THREE.OctahedronGeometry(0.035, 0), trimMat)
-    chest.position.set(0, 0.06, 0.07)
+    // --- torso: wide chest tapering to narrow waist ---
+    const chest = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.09, 0.055, 0.22, 6),
+      matBody
+    )
+    chest.position.y = 0.12
     g.add(chest)
-    const shoulderL = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.06, 0.1), bodyMat)
-    shoulderL.position.set(-0.14, 0.12, 0)
-    g.add(shoulderL)
-    const shoulderR = shoulderL.clone()
-    shoulderR.position.x = 0.14
-    g.add(shoulderR)
-    const armL = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.2, 0.05), bodyMat)
-    armL.position.set(-0.14, -0.02, 0)
-    armL.rotation.z = 0.25
-    g.add(armL)
-    const armR = armL.clone()
-    armR.position.x = 0.14
-    armR.rotation.z = -0.25
-    g.add(armR)
-    const legL = new THREE.Mesh(new THREE.BoxGeometry(0.05, 0.22, 0.06), bodyMat)
-    legL.position.set(-0.05, -0.24, -0.02)
-    legL.rotation.x = -0.5
-    g.add(legL)
-    const legR = legL.clone()
-    legR.position.x = 0.05
-    g.add(legR)
-    const fin = new THREE.Mesh(new THREE.BoxGeometry(0.02, 0.18, 0.12), finMat)
-    fin.position.set(0, 0.02, -0.1)
-    fin.rotation.x = 0.4
-    g.add(fin)
 
-    g.scale.setScalar(0.5)
+    const waist = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.045, 0.05, 0.08, 6),
+      matDark
+    )
+    waist.position.y = -0.02
+    g.add(waist)
+
+    const pelvis = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.055, 0.07, 0.08, 6),
+      matBody
+    )
+    pelvis.position.y = -0.08
+    g.add(pelvis)
+
+    // chest core (A.T. Field source)
+    const core = new THREE.Mesh(new THREE.OctahedronGeometry(0.028, 0), matTrim)
+    core.position.set(0, 0.14, 0.055)
+    g.add(core)
+
+    // --- neck + head ---
+    const neck = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.022, 0.028, 0.04, 5),
+      matDark
+    )
+    neck.position.y = 0.25
+    g.add(neck)
+
+    // elongated skull
+    const skull = new THREE.Mesh(
+      new THREE.CylinderGeometry(0.035, 0.05, 0.1, 6),
+      matBody
+    )
+    skull.position.set(0, 0.32, 0.005)
+    skull.rotation.x = -0.15
+    g.add(skull)
+
+    // jaw / chin (forward)
+    const jaw = new THREE.Mesh(
+      new THREE.ConeGeometry(0.032, 0.07, 5),
+      matBody
+    )
+    jaw.rotation.x = Math.PI / 2 + 0.25
+    jaw.position.set(0, 0.285, 0.045)
+    g.add(jaw)
+
+    // single-eye visor strip
+    const visorMesh = new THREE.Mesh(
+      new THREE.BoxGeometry(0.065, 0.018, 0.02),
+      matVisor
+    )
+    visorMesh.position.set(0, 0.335, 0.045)
+    g.add(visorMesh)
+
+    // forehead horn (Unit-01 signature; all three keep a short crest)
+    const horn = new THREE.Mesh(
+      new THREE.ConeGeometry(0.014, 0.09, 4),
+      matTrim
+    )
+    horn.position.set(0, 0.4, 0.02)
+    horn.rotation.x = 0.35
+    g.add(horn)
+
+    // --- shoulder pylons (the Eva silhouette) ---
+    function pylon(sign) {
+      const p = new THREE.Group()
+      const slab = new THREE.Mesh(
+        new THREE.BoxGeometry(0.07, 0.16, 0.11),
+        matBody
+      )
+      slab.position.y = 0.02
+      p.add(slab)
+      const wing = new THREE.Mesh(
+        new THREE.ConeGeometry(0.035, 0.14, 4),
+        matAccent
+      )
+      wing.position.set(sign * 0.05, 0.08, -0.02)
+      wing.rotation.z = sign * -0.9
+      wing.rotation.y = sign * 0.4
+      p.add(wing)
+      // vertical fin
+      const fin = new THREE.Mesh(
+        new THREE.BoxGeometry(0.015, 0.12, 0.06),
+        matAccent
+      )
+      fin.position.set(0, 0.1, -0.04)
+      p.add(fin)
+      return p
+    }
+    const pyl = pylon(1)
+    pyl.position.set(0.11, 0.18, 0)
+    pyl.rotation.z = -0.15
+    g.add(pyl)
+    const pyr = pylon(-1)
+    pyr.position.set(-0.11, 0.18, 0)
+    pyr.rotation.z = 0.15
+    g.add(pyr)
+
+    // --- arms (flight tuck: elbows bent, hands back) ---
+    function arm(sign) {
+      const a = new THREE.Group()
+      const upper = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.022, 0.028, 0.12, 5),
+        matBody
+      )
+      upper.position.y = -0.05
+      a.add(upper)
+      const elbow = new THREE.Mesh(
+        new THREE.SphereGeometry(0.024, 5, 4),
+        matDark
+      )
+      elbow.position.y = -0.11
+      a.add(elbow)
+      const lower = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.016, 0.02, 0.11, 5),
+        matBody
+      )
+      lower.position.set(0, -0.16, 0.03)
+      lower.rotation.x = 0.7
+      a.add(lower)
+      return a
+    }
+    const armL = arm(1)
+    armL.position.set(0.1, 0.16, 0)
+    armL.rotation.z = -0.35
+    armL.rotation.x = -0.4
+    g.add(armL)
+    const armR = arm(-1)
+    armR.position.set(-0.1, 0.16, 0)
+    armR.rotation.z = 0.35
+    armR.rotation.x = -0.4
+    g.add(armR)
+
+    // --- legs (tucked flight pose: knees up, feet back) ---
+    function leg(sign) {
+      const l = new THREE.Group()
+      const thigh = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.03, 0.035, 0.14, 5),
+        matBody
+      )
+      thigh.position.y = -0.06
+      l.add(thigh)
+      const knee = new THREE.Mesh(
+        new THREE.SphereGeometry(0.03, 5, 4),
+        matDark
+      )
+      knee.position.y = -0.13
+      l.add(knee)
+      const shin = new THREE.Mesh(
+        new THREE.CylinderGeometry(0.022, 0.028, 0.14, 5),
+        matBody
+      )
+      shin.position.set(0, -0.19, -0.04)
+      shin.rotation.x = -0.55
+      l.add(shin)
+      const foot = new THREE.Mesh(
+        new THREE.BoxGeometry(0.035, 0.03, 0.07),
+        matDark
+      )
+      foot.position.set(0, -0.25, -0.08)
+      l.add(foot)
+      return l
+    }
+    const legL = leg(1)
+    legL.position.set(0.04, -0.1, 0)
+    legL.rotation.x = 0.85
+    g.add(legL)
+    const legR = leg(-1)
+    legR.position.set(-0.04, -0.1, 0)
+    legR.rotation.x = 0.85
+    g.add(legR)
+
+    // --- backpack thrusters ---
+    const pack = new THREE.Mesh(
+      new THREE.BoxGeometry(0.08, 0.1, 0.05),
+      matDark
+    )
+    pack.position.set(0, 0.1, -0.06)
+    g.add(pack)
+    const thruster = new THREE.Mesh(
+      new THREE.ConeGeometry(0.03, 0.08, 5),
+      matAccent
+    )
+    thruster.position.set(0, 0.04, -0.1)
+    thruster.rotation.x = Math.PI
+    g.add(thruster)
+
+    // slight forward flight pitch
+    g.rotation.x = -0.35
+    g.scale.setScalar(0.72)
     g.visible = false
-    g.userData = { bodyMat, trimMat, finMat }
+    g.userData = { mats: [matBody, matDark, matTrim, matVisor, matAccent] }
     root.add(g)
     return g
   }
 
-  // Unit-00 (Rei) white/blue · Unit-01 (Shinji) purple/green · Unit-02 (Asuka) red/green
+  // Unit-00 (Rei) pale/blue · Unit-01 (Shinji) purple/green · Unit-02 (Asuka) red
   const evas = [
     {
       id: '00',
-      mesh: buildEva(0xe7e5e4, 0x94a3b8, 0x38bdf8, 0x64748b),
+      mesh: buildEva({
+        body: 0xe8e4df,
+        bodyDark: 0x64748b,
+        trim: 0x38bdf8,
+        visor: 0x22d3ee,
+        accent: 0x94a3b8,
+      }),
       phase: 1.8,
       active: false,
       t: 0,
       radius: 2.2,
-      yBase: 0.35,
-      loops: 0.9,
+      yBase: 0.4,
+      loops: 0.85,
     },
     {
       id: '01',
-      mesh: buildEva(0x4c1d95, 0x2e1065, 0xa3ff12, 0x7c3aed),
+      mesh: buildEva({
+        body: 0x5b21b6,
+        bodyDark: 0x1e1035,
+        trim: 0xa3ff12,
+        visor: 0xa3ff12,
+        accent: 0x2e1065,
+      }),
       phase: 6.5,
       active: false,
       t: 0,
       radius: 2.45,
-      yBase: 0.15,
-      loops: 1.05,
+      yBase: 0.18,
+      loops: 1.0,
     },
     {
       id: '02',
-      mesh: buildEva(0xb91c1c, 0x7f1d1d, 0x86efac, 0xf97316),
+      mesh: buildEva({
+        body: 0xb91c1c,
+        bodyDark: 0x450a0a,
+        trim: 0x86efac,
+        visor: 0xfbbf24,
+        accent: 0x7f1d1d,
+      }),
       phase: 11,
       active: false,
       t: 0,
       radius: 2.05,
-      yBase: 0.5,
-      loops: 0.85,
+      yBase: 0.55,
+      loops: 0.8,
     },
   ]
-  const EVA_LIFE = 11 // seconds per pass — much slower than before
+  const EVA_LIFE = 11 // seconds per pass
 
   // —— Interaction: drag orbit + pinch zoom ——
   const pointers = new Map()
@@ -464,10 +662,10 @@ export function mountProgressScene(container, { solvedCount, totalCount } = {}) 
       e.mesh.lookAt(x2, y2, z2)
 
       const fade = u < 0.1 ? u / 0.1 : u > 0.9 ? (1 - u) / 0.1 : 1
-      const mats = e.mesh.userData
-      mats.bodyMat.opacity = fade
-      mats.trimMat.opacity = fade
-      mats.finMat.opacity = fade
+      for (const m of e.mesh.userData.mats || []) {
+        m.opacity = fade
+        m.transparent = fade < 1
+      }
       e.mesh.rotation.z = Math.sin(t * 3) * 0.08
       e.mesh.position.y += Math.sin(t * 4.5) * 0.02
     }
