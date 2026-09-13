@@ -8,15 +8,18 @@ import { oneDark } from '@codemirror/theme-one-dark'
 
 const phoneTheme = EditorView.theme({
   '&': {
-    fontSize: '14px',
+    // ≥16px — iOS Safari zooms any focused editable below this
+    fontSize: '16px',
     height: '100%',
   },
   '.cm-scroller': {
     fontFamily: "'SF Mono', 'Cascadia Code', 'Fira Code', Consolas, ui-monospace, monospace",
+    fontSize: '16px',
     lineHeight: '1.55',
     padding: '8px 0',
   },
   '.cm-content': {
+    fontSize: '16px',
     paddingBottom: '24px',
     caretColor: '#5eead4',
   },
