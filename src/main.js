@@ -79,6 +79,8 @@ let worker = null
 let runId = 0
 let formatId = 0
 let saveTimer = null
+let runTimeoutTimer = null
+let workerWarmed = false
 let solutionOpen = false
 let disposeProgressScene = null
 let progressSceneLoading = false
@@ -223,6 +225,20 @@ function filteredProblems() {
   })
 }
 
+function clearRunTimeout() {
+  clearTimeout(runTimeoutTimer)
+  runTimeoutTimer = null
+}
+
+function resetWorker() {
+  clearRunTimeout()
+  if (worker) {
+    worker.terminate()
+    worker = null
+  }
+  workerWarmed = false
+}
+
 function ensureWorker() {
   if (worker) return worker
   worker = new Worker(new URL('./worker.js', import.meta.url), { type: 'module' })
@@ -231,6 +247,9 @@ function ensureWorker() {
     if (!msg) return
 
     if (msg.type === 'status') {
+      if (msg.message === 'Ready' || msg.message === 'Running tests…') {
+        workerWarmed = true
+      }
       if (els.btnRun.disabled && msg.message === 'Loading Python runtime…') {
         setRunLabel('Loading…')
       }
@@ -255,11 +274,13 @@ function ensureWorker() {
     }
 
     if (msg.type === 'result' && msg.id === runId) {
+      clearRunTimeout()
       finishRun(msg.result)
     }
   }
   worker.onerror = (err) => {
     console.error(err)
+    clearRunTimeout()
     if (els.btnRun.disabled) {
       finishRun({
         ok: false,
@@ -593,6 +614,24 @@ function runCurrent() {
   setRunLabel('Running…')
   els.results.classList.remove('hidden')
   els.results.innerHTML = '<div class="status-line">Starting Python…</div>'
+
+  // Infinite loops never yield inside the worker — kill and rebuild it.
+  const timeoutMs = workerWarmed ? 8000 : 30000
+  clearRunTimeout()
+  runTimeoutTimer = setTimeout(() => {
+    if (id !== runId || !els.btnRun.disabled) return
+    resetWorker()
+    finishRun({
+      ok: false,
+      error:
+        'Timed out after ' +
+        Math.round(timeoutMs / 1000) +
+        's. Your code probably has an infinite loop — check that every branch updates i/j or returns.',
+      results: [],
+      passed: 0,
+      total: 0,
+    })
+  }, timeoutMs)
 
   const mode = currentProblem.asserts ? 'asserts' : 'cases'
   const w = ensureWorker()
