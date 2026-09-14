@@ -5,6 +5,7 @@ const PYODIDE_BASE = `https://cdn.jsdelivr.net/pyodide/v${PYODIDE_VERSION}/full/
 
 let pyodideReady = null
 let harnessReady = null
+let formatterReady = null
 
 async function ensurePyodide() {
   if (!pyodideReady) {
@@ -28,6 +29,35 @@ async function ensureHarness(pyodide) {
     harnessReady = pyodide.runPythonAsync(harnessSource)
   }
   return harnessReady
+}
+
+async function ensureFormatter(pyodide) {
+  if (!formatterReady) {
+    formatterReady = (async () => {
+      postMessage({ type: 'status', message: 'Loading formatter…' })
+      await pyodide.loadPackage('micropip')
+      const micropip = pyodide.pyimport('micropip')
+      await micropip.install('black')
+      await pyodide.runPythonAsync(`
+import black
+
+def format_python(code: str) -> str:
+    return black.format_str(code, mode=black.Mode())
+`)
+      postMessage({ type: 'status', message: 'Ready' })
+    })()
+  }
+  return formatterReady
+}
+
+async function formatCode({ code }) {
+  const pyodide = await ensurePyodide()
+  await ensureFormatter(pyodide)
+  const formatPython = pyodide.globals.get('format_python')
+  const result = formatPython(code)
+  const text = typeof result === 'string' ? result : String(result)
+  if (result && typeof result.destroy === 'function') result.destroy()
+  return text
 }
 
 async function runTests({ code, fnName, mode, tests, asserts }) {
@@ -59,7 +89,23 @@ async function runTests({ code, fnName, mode, tests, asserts }) {
 
 self.onmessage = async (event) => {
   const msg = event.data
-  if (!msg || msg.type !== 'run') return
+  if (!msg) return
+
+  if (msg.type === 'format') {
+    try {
+      const formatted = await formatCode(msg)
+      postMessage({ type: 'formatResult', id: msg.id, code: formatted })
+    } catch (err) {
+      postMessage({
+        type: 'formatResult',
+        id: msg.id,
+        error: err?.message || String(err),
+      })
+    }
+    return
+  }
+
+  if (msg.type !== 'run') return
 
   try {
     const result = await runTests(msg)

@@ -74,6 +74,8 @@ body {
   background: var(--paper);
   -webkit-text-size-adjust: 100%;
   text-size-adjust: 100%;
+  /* Disable double-tap zoom; keep pinch/pan working where the browser allows */
+  touch-action: manipulation;
 }
 
 body {
@@ -87,6 +89,10 @@ button {
   border: none;
   background: none;
   -webkit-tap-highlight-color: transparent;
+  /* Rapid taps on toolbar/run controls must not double-tap-zoom the page */
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 /* Native fields stay ≥16px as a backup; editor size is --code-font-size */
@@ -828,8 +834,9 @@ button:focus-visible {
 .toolbar {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 8px 10px;
   padding-bottom: calc(8px + var(--safe-bottom));
   background: var(--panel);
   border-bottom: 1px solid var(--border);
@@ -839,13 +846,16 @@ button:focus-visible {
 .tool-btn {
   min-width: 44px;
   min-height: 40px;
-  padding: 0 12px;
+  padding: 0 10px;
   border-radius: 10px;
   border: 1px solid var(--border);
   background: var(--paper);
   font-size: 0.85rem;
   font-weight: 600;
   color: var(--ink);
+  touch-action: manipulation;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .tool-btn:hover {
@@ -869,12 +879,13 @@ button:focus-visible {
   font-size: 0.78rem;
   font-weight: 700;
   letter-spacing: -0.02em;
+  touch-action: manipulation;
 }
 
 .run-btn {
   margin-left: auto;
   min-height: 44px;
-  min-width: 96px;
+  min-width: 88px;
   padding: 0 20px;
   border-radius: 12px;
   background: var(--accent);

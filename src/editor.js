@@ -93,6 +93,14 @@ export function createEditor({ parent, doc, onChange }) {
         changes: { from: 0, to: view.state.doc.length, insert: code },
       })
     },
+    replaceKeepingCursor(code) {
+      const prev = view.state.selection.main.head
+      view.dispatch({
+        changes: { from: 0, to: view.state.doc.length, insert: code },
+        selection: { anchor: Math.min(prev, code.length) },
+        scrollIntoView: true,
+      })
+    },
     indent() {
       view.focus()
       indentMore(view)

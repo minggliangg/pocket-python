@@ -43,6 +43,7 @@ const els = {
   btnFontDown: document.getElementById('btn-font-down'),
   btnFontUp: document.getElementById('btn-font-up'),
   btnTab: document.getElementById('btn-tab'),
+  btnFormat: document.getElementById('btn-format'),
   btnOutdent: document.getElementById('btn-outdent'),
   btnReset: document.getElementById('btn-reset'),
   btnRun: document.getElementById('btn-run'),
@@ -76,6 +77,7 @@ let currentProblem = null
 let editor = null
 let worker = null
 let runId = 0
+let formatId = 0
 let saveTimer = null
 let solutionOpen = false
 let disposeProgressScene = null
@@ -111,6 +113,27 @@ function applyCodeFontSize(px) {
 
 function stepCodeFontSize(delta) {
   return applyCodeFontSize(loadCodeFontSize() + delta)
+}
+
+// iOS Safari can still double-tap zoom on rapid control taps; cancel that gesture.
+function installDoubleTapZoomGuard() {
+  let lastTouchEnd = 0
+  document.addEventListener(
+    'touchend',
+    (event) => {
+      const now = Date.now()
+      const target = event.target
+      const onControl =
+        target instanceof Element &&
+        !target.closest('.cm-content') &&
+        Boolean(target.closest('button, a, select, input, textarea, [role="button"]'))
+      if (onControl && now - lastTouchEnd <= 300) {
+        event.preventDefault()
+      }
+      lastTouchEnd = now
+    },
+    { passive: false }
+  )
 }
 
 function currentTheme() {
@@ -210,6 +233,23 @@ function ensureWorker() {
     if (msg.type === 'status') {
       if (els.btnRun.disabled && msg.message === 'Loading Python runtime…') {
         setRunLabel('Loading…')
+      }
+      return
+    }
+
+    if (msg.type === 'formatResult' && msg.id === formatId) {
+      els.btnFormat.disabled = false
+      if (msg.error) {
+        showToast('Cannot format — fix syntax errors first')
+        return
+      }
+      if (typeof msg.code === 'string' && editor) {
+        const before = editor.getValue()
+        if (msg.code !== before) {
+          editor.replaceKeepingCursor(msg.code)
+          if (currentProblem) scheduleSave(currentProblem.id, msg.code)
+        }
+        showToast('Formatted')
       }
       return
     }
@@ -567,6 +607,17 @@ function runCurrent() {
   })
 }
 
+function formatCurrent() {
+  if (!editor) return
+  const code = editor.getValue()
+  if (!code.trim()) return
+
+  formatId += 1
+  els.btnFormat.disabled = true
+  showToast('Formatting…')
+  ensureWorker().postMessage({ type: 'format', id: formatId, code })
+}
+
 async function init() {
   try {
     solved = await getProgress()
@@ -603,6 +654,7 @@ async function init() {
   })
   els.btnTab.addEventListener('click', () => editor?.indent())
   els.btnOutdent.addEventListener('click', () => editor?.outdent())
+  els.btnFormat?.addEventListener('click', formatCurrent)
   els.btnReset.addEventListener('click', async () => {
     if (!currentProblem || !editor) return
     editor.setValue(currentProblem.starter)
@@ -734,4 +786,5 @@ if (import.meta.env.DEV) {
   ensureWorker()
 }
 
+installDoubleTapZoomGuard()
 init()
